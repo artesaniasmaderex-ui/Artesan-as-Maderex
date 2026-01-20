@@ -10,10 +10,13 @@ function scrollFotos(btn, direccion) {
 
 // 2. Función para volver al primer post
 function irArriba() {
-    document.querySelector('.tiktok-container').scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    const container = document.querySelector('.tiktok-container');
+    if (container) {
+        container.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
 }
 
 // 3. Gestión de datos de compra
@@ -53,7 +56,7 @@ function openFormModal() {
     document.getElementById('formBackdrop').classList.add('active');
 }
 
-// 5. Envío del formulario al servidor Python
+// 5. Envío del formulario al servidor Python en RENDER
 document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const mensaje = document.getElementById('message');
@@ -64,15 +67,19 @@ document.getElementById('purchaseForm').addEventListener('submit', async (e) => 
     const payload = {
         ...Object.fromEntries(formData.entries()),
         producto_nombre: datosProductoSeleccionado.nombre,
-        producto_precio: datosProductoSeleccionado.precio
+        producto_precio: datosProductoSeleccionado.precio,
+        producto_imagen: datosProductoSeleccionado.imagen // Agregado para que el mail tenga la foto
     };
 
     try {
-        const response = await fetch('http://localhost:5000/api/send-order', {
+        // CAMBIO AQUÍ: Ahora apunta a RENDER en lugar de localhost
+        const response = await fetch('https://artesan-as-maderex.onrender.com/api/send-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
+        const result = await response.json();
 
         if (response.ok) {
             mensaje.textContent = '✅ ¡Pedido enviado con éxito!';
@@ -83,11 +90,13 @@ document.getElementById('purchaseForm').addEventListener('submit', async (e) => 
                 mensaje.textContent = '';
             }, 3000);
         } else {
-            mensaje.textContent = '❌ Error al enviar el pedido.';
+            // Muestra el error específico que devuelve Flask si falla el mail
+            mensaje.textContent = '❌ Error: ' + (result.error || 'No se pudo enviar');
             mensaje.style.color = 'red';
         }
     } catch (error) {
         mensaje.textContent = '❌ Error de conexión con el servidor.';
         mensaje.style.color = 'red';
+        console.error("Error en el fetch:", error);
     }
 });
