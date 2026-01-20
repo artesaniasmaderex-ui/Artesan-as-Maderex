@@ -12,7 +12,7 @@ SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 SENDER_EMAIL = 'artesaniasmaderex@gmail.com' # 🚨 TU CORREO (el que usa el código para enviar)
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD') # 🚨 TU CLAVE DE APLICACIÓN/CONTRASEÑA SMTP
-VENDOR_EMAIL = 'elifalero2013@gmail.com' # 🚨 TU CORREO (donde recibirás el pedido)
+VENDOR_EMAIL = 'artesaniasmaderex@gmail.com' # 🚨 TU CORREO (donde recibirás el pedido)
 
 app = Flask(__name__)
 CORS(app) 
