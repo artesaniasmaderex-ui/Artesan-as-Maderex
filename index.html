@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artesanías Maderex</title>
+    <link rel="stylesheet" href="stilos.css">
+</head>
+<body>
+
+    <h1 id="encabezadoMaderex">Artesanías Maderex</h1>
+
+    <main class="tiktok-container">
+        
+
+
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/2.jpeg" alt="Tabla para picada">
+                </div>
+
+            </div>
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID: 399374</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: resina y madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+        
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/1.jpeg" alt="Tabla para picada">
+                    <img src="img/1.jpeg" alt="Detalle madera"> 
+                </div>
+
+            </div>
+            
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID:493843</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/3.jpeg" alt="Tabla para picada">
+                </div>
+
+            </div>
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID: 834948</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: resina y madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/4.jpeg" alt="Tabla para picada">
+                </div>
+
+            </div>
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID: 583532</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: resina y madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/5.jpeg" alt="Tabla para picada">
+                </div>
+
+            </div>
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID: 838932</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: acrilico y madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+
+        <section class="post">
+            <div class="contenedor-visual">
+                <div class="fotos-wrapper">
+                    <img src="img/6.jpeg" alt="Tabla para picada">
+                </div>
+
+            </div>
+            <div class="post-overlay">
+                <div class="info-texto">
+                    <h2 class="p-name">ID: 323432</h2>
+                    <p class="p-price"></p>
+                    <p class="p-details" style="display:none;">Material: resina y madera.</p>
+                </div>
+                <button class="btn-comprar-tik" onclick="abrirDetalles(this)">Ver Detalles y Comprar</button>
+            </div>
+        </section>
+
+        <section class="post final-screen">
+            <div class="mensaje-final">
+                <h2>✨ Llegaste al final ✨</h2>
+                <p>Artesanías Maderex</p>
+                <button class="btn-back-up" onclick="irArriba()">Volver al Inicio</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modalBackdrop')">&times;</button>
+            <div class="modal-info">
+                <img id="modalImg" src="" alt="Producto">
+                <div class="text-info">
+                    <h2 id="modalName"></h2>
+                    <h3 id="modalPrice"></h3>
+                    <p id="modalDetails"></p>
+                    <button class="buy-button" onclick="openFormModal()">Añadir al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-backdrop" id="formBackdrop">
+        <div class="modal-content form-container">
+            <button class="modal-close" onclick="closeModal('formBackdrop')">&times;</button>
+            <h3>Confirmar Compra</h3>
+            <div class="summary-product">
+                <img id="summaryImg" src="" alt="Producto">
+                <div>
+                    <h4 id="summaryName"></h4>
+                    <p id="summaryPrice"></p>
+                </div>
+            </div>
+            <form id="purchaseForm">
+                <input type="text" name="nombre" placeholder="Nombre completo" required>
+                <input type="text" name="ubicacion" placeholder="Dirección / Ubicación" required>
+                <input type="tel" name="telefono" placeholder="Teléfono de contacto" required>
+                <input type="email" name="correoCliente" placeholder="Correo electrónico" required>
+                <button type="submit" class="submit-button">Confirmar Compra</button>
+            </form>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
