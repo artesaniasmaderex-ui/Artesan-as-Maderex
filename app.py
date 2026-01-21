@@ -4,22 +4,18 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+import socket # Para diagnosticar la red
 
-# --- CONFIGURACIÓN DE RUTAS ---
 base_dir = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__, static_folder=base_dir)
-# Configuración de CORS para permitir peticiones desde cualquier origen
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# --- CONFIGURACIÓN DE CORREO (USANDO SSL PUERTO 465) ---
-SMTP_SERVER = 'smtp.gmail.com' 
-SMTP_PORT = 465  # Puerto SSL directo
+# Configuración
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_PORT = 587 # Volvemos al 587 pero con un ajuste de conexión
 SENDER_EMAIL = 'artesaniasmaderex@gmail.com'
-SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD') 
-VENDOR_EMAIL = 'elifalero2013@gmail.com'
-
-# --- RUTAS PARA MOSTRAR LA WEB ---
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
+VENDOR_EMAIL = 'artesaniasmaderex@gmail.com'
 
 @app.route('/')
 def serve_index():
@@ -29,73 +25,43 @@ def serve_index():
 def serve_static(path):
     return send_from_directory(base_dir, path)
 
-# --- LÓGICA DE ENVÍO ---
-
 @app.route('/api/send-order', methods=['POST'])
 def send_order():
     data = request.json
-    
-    # Validar que lleguen los datos necesarios
-    required = ['ubicacion', 'nombre', 'telefono', 'correoCliente', 'producto_nombre']
-    if not data or not all(k in data for k in required):
-        return jsonify({'error': 'Faltan datos obligatorios'}), 400
-
     try:
-        # Intentamos enviar los correos
+        # PRUEBA DE RED ANTES DE ENVIAR
+        socket.create_connection(("smtp.gmail.com", 587), timeout=5)
+        
         send_email_to_client(data)
         send_email_to_vendor(data)
-        return jsonify({'success': True, 'message': 'Pedido enviado con éxito'}), 200
-
+        return jsonify({'success': True}), 200
     except Exception as e:
-        print(f"Error en el servidor: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-# --- FUNCIONES DE CORREO ---
+        print(f"DEBUG: Fallo de red detectado: {e}")
+        return jsonify({'error': f"Error de red: {str(e)}"}), 500
 
 def _send_smtp_email(to_email, msg):
-    """Conexión optimizada con SSL para evitar Timeouts"""
-    # Usamos SMTP_SSL para una conexión inmediata y segura
-    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-        server.login(SENDER_EMAIL, SMTP_PASSWORD)
-        server.sendmail(SENDER_EMAIL, to_email, msg.as_string())
+    # Usamos la conexión estándar con timeout explícito
+    server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
+    server.ehlo()
+    server.starttls()
+    server.login(SENDER_EMAIL, SMTP_PASSWORD)
+    server.sendmail(SENDER_EMAIL, to_email, msg.as_string())
+    server.quit()
 
 def send_email_to_client(order_data):
-    subject = f"✅ Confirmación de Pedido: {order_data['producto_nombre']}"
-    html_body = f"""
-    <html>
-        <body>
-            <h2>¡Hola {order_data['nombre']}!</h2>
-            <p>Hemos recibido tu pedido de: <b>{order_data['producto_nombre']}</b></p>
-            <p>Precio: {order_data['producto_precio']}</p>
-            <p>Nos comunicaremos al {order_data['telefono']} para la entrega.</p>
-        </body>
-    </html>
-    """
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
     msg['To'] = order_data['correoCliente']
-    msg['Subject'] = subject
-    msg.attach(MIMEText(html_body, 'html'))
+    msg['Subject'] = "Confirmación Pedido"
+    msg.attach(MIMEText(f"Pedido recibido: {order_data['producto_nombre']}", 'plain'))
     _send_smtp_email(order_data['correoCliente'], msg)
 
 def send_email_to_vendor(order_data):
-    subject = f"🚨 NUEVO PEDIDO: {order_data['producto_nombre']}"
-    html_body = f"""
-    <html>
-        <body>
-            <h2>Detalles del Pedido</h2>
-            <p><b>Producto:</b> {order_data['producto_nombre']}</p>
-            <p><b>Cliente:</b> {order_data['nombre']}</p>
-            <p><b>Teléfono:</b> {order_data['telefono']}</p>
-            <p><b>Ubicación:</b> {order_data['ubicacion']}</p>
-        </body>
-    </html>
-    """
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
     msg['To'] = VENDOR_EMAIL
-    msg['Subject'] = subject
-    msg.attach(MIMEText(html_body, 'html'))
+    msg['Subject'] = "NUEVO PEDIDO"
+    msg.attach(MIMEText(f"Producto: {order_data['producto_nombre']}\nCliente: {order_data['nombre']}", 'plain'))
     _send_smtp_email(VENDOR_EMAIL, msg)
 
 if __name__ == '__main__':
